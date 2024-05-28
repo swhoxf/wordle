@@ -11,11 +11,20 @@ var keyboard = [keyboard1, keyboard2, keyboard3]
 var keyboardFlat = keyboard.flat()
 
 //generate word
-function generateWord() {
-  var possibleWords = ["apple", "block", "books", "chains", "trick"]
-  let index = 0 
-  let word = possibleWords[index]
-  return word
+async function generateWord() {
+  let index = Math.floor(Math.random() * 2308);
+  let wordArray = await getWordArray()
+  word = wordArray[index]
+  console.log(wordArray[index])
+  return word;
+}
+
+//returns text from file as string
+async function getWordArray() {
+    const response = await fetch ('https://gist.githubusercontent.com/cfreshman/a7b776506c73284511034e63af1017ee/raw/60531ab531c4db602dacaa4f6c0ebf2590b123da/wordle-nyt-answers-alphabetical.txt')
+    const data = await response.text()
+    const words = data.split("\n")
+    return words
 }
 
 //check game over
@@ -122,6 +131,34 @@ function redrawCells() {
     }
 }
 
+//returns true if guess is 
+async function isValidGuess(guess) {
+  const wordArray = await getWordArray()
+  return wordArray.includes(guess)
+}
+
+async function handleGuess() {
+  // if the guess appears in the word list, count it as a real guess
+  if (await isValidGuess(currGuess)) {
+    prevGuesses.push(currGuess)
+    currGuess = ""
+    redrawCells()
+    if (isGameWon()) {
+        updateStats()
+        timedStatsPopup()
+        timedAnimateWinning()
+        timedResultMessage(resultMessage())
+    } else if (isGameOver()) {
+        updateStats()
+        timedStatsPopup()
+        timedResultMessage(resultMessage())
+    } // otherwise display message "not in word list" and shake the cells
+  } else {
+    timedAnimateBadGuess()
+    timedResultMessage('Not in word list')
+  }
+}
+
 //store guesses
 function handleKeyDown(e) {
   // see how many guesses were made already
@@ -151,20 +188,8 @@ function handleKeyDown(e) {
       cellFront.classList.remove('scale-up-center')
       let cellBack = gameBoard.children[curIndex - 1].children[0].children[0]
       cellBack.textContent = ""
-    } else if (e.key === "Enter" && currGuess.length === 5) { // case: enter guess
-      prevGuesses.push(currGuess)
-      currGuess = ""
-      redrawCells()
-      if (isGameWon()) {
-          updateStats()
-          timedStatsPopup()
-          timedAnimateWinning()
-          timedResultMessage()
-      } else if (isGameOver()) {
-          updateStats()
-          timedStatsPopup()
-          timedResultMessage()
-      }
+    } else if (e.key === "Enter" && currGuess.length === 5) { // case: guess has the right length
+      handleGuess()
     }
   }
 }
@@ -198,20 +223,8 @@ function handleVirtualKeyDown(key) {
             cellFront.classList.remove('scale-up-center')
             let cellBack = gameBoard.children[curIndex - 1].children[0].children[0]
             cellBack.textContent = ""
-        } else if (key === "Enter" && currGuess.length === 5) { // case: enter guess
-            prevGuesses.push(currGuess)
-            currGuess = ""
-            redrawCells()
-            if (isGameWon()) {
-                updateStats()
-                timedStatsPopup()
-                timedAnimateWinning()
-                timedResultMessage()
-            } else if (isGameOver()) {
-                updateStats()
-                timedStatsPopup()
-                timedResultMessage()
-            }
+        } else if (key === "Enter" && currGuess.length === 5) { // case: guess is the right length
+            handleGuess()
         }
     }
 }
@@ -516,9 +529,9 @@ function drawGuessDistBar(gd, gdElem, rect, color, max) {
     gdElem.setAttribute("x", (widthInt + 25).toString())
 }
 
-function init() {
+async function init() {
     // decide current word
-    answer = generateWord()
+    answer = await generateWord()
     // draw initial gameboard
     drawInitCells()
     // draw stats popup
@@ -567,6 +580,25 @@ async function timedAnimateWinning() {
     }
 }
 
+// animates cells shaking if the guess is not a word in the word list
+async function timedAnimateBadGuess() {
+  let start = (prevGuesses.length) * 5
+  let end = start + 5
+  let cardRow = Array.from(document.getElementById('cell-grid').children).slice(start, end)
+  cardRow.forEach((item) => {
+    item.classList.add('shake-horizontal')
+  })
+  await sleep(2000)
+  cardRow.forEach((item) => {
+    item.classList.remove('shake-horizontal')
+  })
+}
+
+// removes the shake-horizontal class from cells to reuse the animation
+function removeAnimateBadGuess() {
+
+}
+
 function resultMessage() {
     let numGuesses = prevGuesses.length
     let message
@@ -593,8 +625,7 @@ function resultMessage() {
     return message
 }
 
-async function timedResultMessage() {
-    let message = resultMessage()
+async function timedResultMessage(message) {
     let messagePopup = document.getElementById('result-msg-popup')
     messagePopup.textContent = message
     await sleep(1000)
