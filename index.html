@@ -1,0 +1,161 @@
+﻿<!--index.html-->
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Wordle Clone</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+          rel="stylesheet">
+    <script type="text/javascript" src="script.js"></script>
+</head>
+<body onload="init()">
+    <div>
+        <h1>Wordle Clone</h1>
+        <button onclick="toggleStats()">
+            <span class="material-icons">
+                assessment
+            </span>
+        </button>
+        <button onclick="toggleSettings()">
+            <span class="material-icons">
+                settings
+            </span>
+        </button>
+    </div>
+
+    <div class="flex-container">
+        <div class="game-board">
+            <div class="grid-container" id="cell-grid"></div>
+        </div>
+        <div id="keyboard" class="flex-container">
+            <div id="keyboard-row1" class="flex-container keyboard-row"></div>
+            <div id="keyboard-row2" class="flex-container keyboard-row"></div>
+            <div id="keyboard-row3" class="flex-container keyboard-row"></div>
+        </div>
+    </div>
+
+    <div id="result-msg-popup">
+    </div>
+
+
+    <div class="stats-popup" id="stats-popup">
+        <button class="close-btn" onclick="closeStats()">&times;</button>
+        <h3>STATISTICS</h3>
+        <ul>
+            <li>
+                <h2 id="played">0</h2>
+                <h6>Played</h6>
+            </li>
+            
+            <li>
+                <h2 id="win-percent">0</h2>
+                <h6>Win %</h6>
+            </li>
+            <li>
+                <h2 id="curr-streak">0</h2>
+                <h6>Current Streak</h6>
+            </li>
+            <li>
+                <h2 id="max-streak">0</h2>
+                <h6>Max Streak</h6>
+            </li>
+        </ul>
+        <h5>GUESS DISTRIBUTION</h5>
+        <div class="guess-dist">
+            <svg width="300" height="200">
+                <text x="0" y="15" fill="black">1</text>
+                <rect id="gd-bar-1" x="30" y="0" width="20" height="20" style="fill:rgb(128, 128, 128);" />
+                <text id="gd-1" x="35" y="15" fill="white" text-anchor="end">1</text>
+
+                <text x="0" y="45" fill="black">2</text>
+                <rect id="gd-bar-2" x="30" y="30" width="20" height="20" style="fill:rgb(128, 128, 128);" />
+                <text id="gd-2" x="35" y="45" fill="white" text-anchor="end">2</text>
+
+                <text x="0" y="75" fill="black">3</text>
+                <rect id="gd-bar-3" x="30" y="60" width="20" height="20" style="fill:rgb(128, 128, 128);" />
+                <text id="gd-3" x="35" y="75" fill="white" text-anchor="end">3</text>
+
+                <text x="0" y="105" fill="black">4</text>
+                <rect id="gd-bar-4" x="30" y="90" width="20" height="20" style="fill:rgb(128, 128, 128);" />
+                <text id="gd-4" x="35" y="105" fill="white" text-anchor="end">4</text>
+
+                <text x="0" y="135" fill="black">5</text>
+                <rect id="gd-bar-5" x="30" y="120" width="20" height="20" style="fill:rgb(128, 128, 128);" />
+                <text id="gd-5" x="35" y="135" fill="white" text-anchor="end">5</text>
+            </svg>
+        </div>
+        <form action="/url" method="GET" id="message-container">
+            <textarea id="message-input" name="text" rows="12" cols="50"></textarea>
+            <button onclick="copyEmojiBlock()">
+                <span class="material-icons">
+                    content_copy
+                </span>
+            </button>
+        </form>
+
+    </div>
+
+    <div id="settings-popup" class="settings-popup">
+        <button class="close-btn" onclick="closeSettings()">&times;</button>
+        <h3>SETTINGS</h3>
+
+        <ul>
+            <li>
+                <div class="settings-container">
+                    <div class="settings-label">
+                        <h4>Hard Mode</h4>
+                        <p>Any revealed hints must be used in subsequent guesses</p>
+                    </div>
+                    <div class="switch-container">
+                        <!-- Rounded switch -->
+                        <label class="switch">
+                            <input type="checkbox">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+                <hr class="solid" />
+            </li>
+
+            <li>
+                <div class="settings-container">
+                    <div class="settings-label">
+                        <h4>Dark Theme</h4>
+                    </div>
+                    <div class="switch-container">
+                        <!-- Rounded switch -->
+                        <label class="switch">
+                            <input type="checkbox">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+                <hr class="solid" />
+            </li>
+
+            <li>
+                <div class="settings-container">
+                    <div class="settings-label">
+                        <h4>High Contrast Mode</h4>
+                        <p>For improved color vision</p>
+                    </div>
+                    <div class="switch-container">
+                        <!-- Rounded switch -->
+                        <label class="switch">
+                            <input type="checkbox">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+                <hr class="solid" />
+            </li>
+        </ul>
+    </div>
+
+
+</body>
+</html>
